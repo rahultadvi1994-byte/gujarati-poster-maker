@@ -68,11 +68,10 @@ export default function EditorPage() {
   const [textColor, setTextColor] = useState<string>('#ffffff');
   const [selectedObject, setSelectedObject] = useState<TextLayerKey | 'photo' | null>(null);
 
-  // Auto-fill "From" field when user is logged in
   useEffect(() => {
-    if (user?.email && !inputs.from) {
+    if (user?.email &&!inputs.from) {
       const name = user.email.split('@')[0];
-      setInputs((prev) => ({ ...prev, from: name }));
+      setInputs((prev) => ({...prev, from: name }));
       const obj = textObjectsRef.current['from'];
       if (obj && fabricRef.current) {
         obj.set('text', `- પ્રેષક: ${name}`);
@@ -81,15 +80,15 @@ export default function EditorPage() {
     }
   }, [user]);
 
-  // Initialize Fabric canvas
   useEffect(() => {
     let disposed = false;
 
     async function init() {
       const fabricModule = await import('fabric');
-      const f = (fabricModule as any).fabric ?? (fabricModule as any).default?.fabric ?? fabricModule as any;
-      if (disposed || !canvasRef.current) return;
+      const f = (fabricModule as any).fabric?? (fabricModule as any).default?.fabric?? fabricModule as any;
+      if (disposed ||!canvasRef.current) return;
 
+      // === અહીંયા મેં ઠીક કર્યું છે ===
       const canvas = new f.Canvas(canvasRef.current, {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
@@ -98,7 +97,6 @@ export default function EditorPage() {
       });
       fabricRef.current = canvas;
 
-      // Background gradient
       const bgRect = new f.Rect({
         left: 0,
         top: 0,
@@ -117,7 +115,6 @@ export default function EditorPage() {
       }));
       canvas.add(bgRect);
 
-      // Decorative top bar
       const topBar = new f.Rect({
         left: 0,
         top: 0,
@@ -129,7 +126,6 @@ export default function EditorPage() {
       });
       canvas.add(topBar);
 
-      // Decorative bottom bar
       const bottomBar = new f.Rect({
         left: 0,
         top: CANVAS_HEIGHT - 12,
@@ -141,14 +137,13 @@ export default function EditorPage() {
       });
       canvas.add(bottomBar);
 
-      // AI prompt background image
       if (aiPromptRef.current) {
         const promptVal = encodeURIComponent(
           aiPromptRef.current + ' gujarati poster, vibrant, 3d'
         );
         const imgUrl = `https://image.pollinations.ai/prompt/${promptVal}?width=1080&height=1080&nologo=true`;
         f.Image.fromURL(imgUrl, (img: any) => {
-          if (disposed || !fabricRef.current) return;
+          if (disposed ||!fabricRef.current) return;
           img.set({
             left: 0,
             top: 0,
@@ -163,11 +158,10 @@ export default function EditorPage() {
         }, { crossOrigin: 'anonymous' });
       }
 
-      // Create text objects
       const fontStack = GUJARATI_FONT;
       (Object.keys(defaultLayers) as TextLayerKey[]).forEach((key) => {
         const layer = defaultLayers[key];
-        const displayText = key === 'from' ? '' : layer.text;
+        const displayText = key === 'from'? '' : layer.text;
         const textObj = new f.Text(displayText, {
           left: layer.left,
           top: layer.top,
@@ -177,14 +171,13 @@ export default function EditorPage() {
           fill: layer.fill,
           fontWeight: layer.fontWeight as any,
           fontFamily: fontStack,
-          textAlign: layer.originX === 'right' ? 'right' : 'center',
+          textAlign: layer.originX === 'right'? 'right' : 'center',
           shadow: new f.Shadow({ color: 'rgba(0,0,0,0.5)', blur: 8, offsetX: 2, offsetY: 2 }),
         });
         canvas.add(textObj);
         textObjectsRef.current[key] = textObj;
       });
 
-      // Selection events
       canvas.on('selection:created', (e: any) => handleSelection(e));
       canvas.on('selection:updated', (e: any) => handleSelection(e));
       canvas.on('selection:cleared', () => setSelectedObject(null));
@@ -218,13 +211,12 @@ export default function EditorPage() {
     };
   }, []);
 
-  // Update text when inputs change
   const updateText = useCallback((key: TextLayerKey, value: string) => {
-    setInputs((prev) => ({ ...prev, [key]: value }));
+    setInputs((prev) => ({...prev, [key]: value }));
     const obj = textObjectsRef.current[key];
     if (obj && fabricRef.current) {
       if (key === 'from') {
-        obj.set('text', value ? `- પ્રેષક: ${value}` : '');
+        obj.set('text', value? `- પ્રેષક: ${value}` : '');
       } else {
         obj.set('text', value);
       }
@@ -232,10 +224,9 @@ export default function EditorPage() {
     }
   }, []);
 
-  // Apply font size to selected text
   const applyFontSize = useCallback((size: number) => {
     setFontSize(size);
-    if (!fabricRef.current || !selectedObject || selectedObject === 'photo') return;
+    if (!fabricRef.current ||!selectedObject || selectedObject === 'photo') return;
     const obj = textObjectsRef.current[selectedObject as TextLayerKey];
     if (obj) {
       obj.set('fontSize', size);
@@ -243,10 +234,9 @@ export default function EditorPage() {
     }
   }, [selectedObject]);
 
-  // Apply text color to selected text
   const applyTextColor = useCallback((color: string) => {
     setTextColor(color);
-    if (!fabricRef.current || !selectedObject || selectedObject === 'photo') return;
+    if (!fabricRef.current ||!selectedObject || selectedObject === 'photo') return;
     const obj = textObjectsRef.current[selectedObject as TextLayerKey];
     if (obj) {
       obj.set('fill', color);
@@ -254,25 +244,21 @@ export default function EditorPage() {
     }
   }, [selectedObject]);
 
-  // Upload photo
   const handlePhotoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !fabricRef.current) return;
+    if (!file ||!fabricRef.current) return;
 
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const fabricModule = await import('fabric');
-      const f = (fabricModule as any).fabric ?? (fabricModule as any).default?.fabric ?? fabricModule as any;
+      const f = (fabricModule as any).fabric?? (fabricModule as any).default?.fabric?? fabricModule as any;
       const dataUrl = ev.target?.result as string;
 
       f.Image.fromURL(dataUrl, (img: any) => {
         if (!fabricRef.current) return;
-
-        // Remove existing photo
         if (photoRef.current) {
           fabricRef.current.remove(photoRef.current);
         }
-
         const targetSize = 300;
         const scale = Math.min(targetSize / img.width, targetSize / img.height);
         img.scale(scale);
@@ -287,8 +273,6 @@ export default function EditorPage() {
             originY: 'center',
           }),
         });
-
-        // Circular border behind photo
         const border = new f.Circle({
           radius: (targetSize * scale) / 2 + 6,
           left: CANVAS_WIDTH / 2,
@@ -301,7 +285,6 @@ export default function EditorPage() {
           selectable: false,
           evented: false,
         });
-
         fabricRef.current.add(border);
         fabricRef.current.add(img);
         photoRef.current = img;
@@ -312,26 +295,21 @@ export default function EditorPage() {
     reader.readAsDataURL(file);
   }, []);
 
-  // Download as JPG
   const handleDownload = useCallback(() => {
     if (!fabricRef.current) return;
     fabricRef.current.discardActiveObject();
     fabricRef.current.renderAll();
-
     const dataUrl = fabricRef.current.toDataURL({
       format: 'jpg', quality: 1, multiplier: 1 });
-
     const link = document.createElement('a');
     link.download = `poster-${templateId || 'custom'}-${Date.now()}.jpg`;
     link.href = dataUrl;
     link.click();
-
-    // Save to history if logged in
     if (user?.email) {
       try {
         const key = `posters:${user.email}`;
         const raw = localStorage.getItem(key);
-        const existing: any[] = raw ? JSON.parse(raw) : [];
+        const existing: any[] = raw? JSON.parse(raw) : [];
         existing.unshift({
           id: `${Date.now()}`,
           title: inputs.headline || 'અનામ પોસ્ટર',
@@ -340,15 +318,12 @@ export default function EditorPage() {
           templateId: templateId || undefined,
         });
         localStorage.setItem(key, JSON.stringify(existing.slice(0, 50)));
-      } catch {
-        // ignore storage errors
-      }
+      } catch {}
     }
   }, [templateId, user, inputs.headline]);
 
-  // Delete selected object
   const handleDelete = useCallback(() => {
-    if (!fabricRef.current || !selectedObject) return;
+    if (!fabricRef.current ||!selectedObject) return;
     if (selectedObject === 'photo') {
       if (photoRef.current) {
         fabricRef.current.remove(photoRef.current);
@@ -378,7 +353,6 @@ export default function EditorPage() {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      {/* Top bar */}
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/40 bg-card px-4 shadow-sm">
         <div className="flex items-center gap-3">
           <Link href="/">
@@ -390,7 +364,7 @@ export default function EditorPage() {
           </Link>
           <Separator orientation="vertical" className="h-6 hidden sm:block" />
           <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
-            {aiPrompt ? 'AI પોસ્ટર' : templateId ? `ટેમ્પલેટ: ${templateId}` : 'નવો પોસ્ટર'}
+            {aiPrompt? 'AI પોસ્ટર' : templateId? `ટેમ્પલેટ: ${templateId}` : 'નવો પોસ્ટર'}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -400,40 +374,22 @@ export default function EditorPage() {
               <span className="hidden sm:inline">કાઢી નાખો</span>
             </Button>
           )}
-          <Button
-            size="sm"
-            className="gap-2 bg-gradient-to-r from-saffron to-saffron-dark text-white shadow-md"
-            onClick={handleDownload}
-          >
+          <Button size="sm" className="gap-2 bg-gradient-to-r from-saffron to-saffron-dark text-white shadow-md" onClick={handleDownload}>
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">ડાઉનલોડ</span>
             <span className="sm:hidden">JPG</span>
           </Button>
         </div>
       </header>
-
-      {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-        {/* Canvas area */}
         <div className="flex flex-1 items-center justify-center overflow-auto bg-muted/30 p-4">
-          <div
-            className="relative shadow-2xl ring-1 ring-border/30"
-            style={{ width: 'min(100%, 1080px)', aspectRatio: '1 / 1' }}
-          >
-            <canvas
-              ref={canvasRef}
-              width={CANVAS_WIDTH}
-              height={CANVAS_HEIGHT}
-              className="block h-full w-full"
-            />
+          <div className="relative shadow-2xl ring-1 ring-border/30" style={{ width: 'min(100%, 1080px)', aspectRatio: '1 / 1' }}>
+            <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="block h-full w-full" />
           </div>
         </div>
-
-        {/* Right sidebar controls */}
         <aside className="w-full shrink-0 overflow-y-auto border-t border-border/40 bg-card lg:w-[360px] lg:border-l lg:border-t-0">
           <ScrollArea className="h-full">
             <div className="space-y-6 p-5">
-              {/* Gujarati text inputs */}
               <section>
                 <div className="mb-3 flex items-center gap-2">
                   <Type className="h-4 w-4 text-saffron" />
@@ -442,114 +398,57 @@ export default function EditorPage() {
                 <div className="space-y-3">
                   {inputFields.map((field) => (
                     <div key={field.key} className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">
-                        {field.label}
-                      </Label>
-                      <Input
-                        value={inputs[field.key]}
-                        onChange={(e) => updateText(field.key, e.target.value)}
-                        placeholder={field.placeholder}
-                        className="h-9 text-sm"
-                      />
+                      <Label className="text-xs font-medium text-muted-foreground">{field.label}</Label>
+                      <Input value={inputs[field.key]} onChange={(e) => updateText(field.key, e.target.value)} placeholder={field.placeholder} className="h-9 text-sm" />
                     </div>
                   ))}
                 </div>
               </section>
-
               <Separator />
-
-              {/* Photo upload */}
               <section>
                 <div className="mb-3 flex items-center gap-2">
                   <ImageIcon className="h-4 w-4 text-saffron" />
                   <h3 className="text-sm font-semibold text-foreground">ફોટો ઉમેરો</h3>
                 </div>
                 <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border/60 px-4 py-6 text-sm text-muted-foreground transition-colors hover:border-saffron hover:bg-saffron/5 hover:text-saffron-dark">
-                  <Upload className="h-4 w-4" />
-                  ફોટો અપલોડ કરો
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handlePhotoUpload}
-                  />
+                  <Upload className="h-4 w-4" /> ફોટો અપલોડ કરો
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
                 </label>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  ફોટો ગોળાકાર આકારમાં દેખાશે. ખસેડવા, મોટો કરવા અને ફેરવવા માટે ક્લિક કરીને ખેંચો.
-                </p>
+                <p className="mt-2 text-xs text-muted-foreground">ફોટો ગોળાકાર આકારમાં દેખાશે. ખસેડવા, મોટો કરવા અને ફેરવવા માટે ક્લિક કરીને ખેંચો.</p>
               </section>
-
               <Separator />
-
-              {/* Font controls */}
               <section>
                 <div className="mb-3 flex items-center gap-2">
                   <Palette className="h-4 w-4 text-saffron" />
                   <h3 className="text-sm font-semibold text-foreground">ફોન્ટ સેટિંગ્સ</h3>
                 </div>
-
-                {!selectedObject || selectedObject === 'photo' ? (
-                  <p className="text-xs text-muted-foreground">
-                    ફોન્ટ સાઇઝ અને રંગ બદલવા માટે કેનવાસ પરના લખાણ પર ક્લિક કરો.
-                  </p>
+                {!selectedObject || selectedObject === 'photo'? (
+                  <p className="text-xs text-muted-foreground">ફોન્ટ સાઇઝ અને રંગ બદલવા માટે કેનવાસ પરના લખાણ પર ક્લિક કરો.</p>
                 ) : (
                   <div className="space-y-4">
-                    {/* Font size slider */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-medium text-muted-foreground">ફોન્ટ સાઇઝ</Label>
                         <span className="text-xs font-semibold text-foreground">{fontSize}px</span>
                       </div>
-                      <Slider
-                        value={[fontSize]}
-                        onValueChange={(val) => applyFontSize(val[0])}
-                        min={16}
-                        max={120}
-                        step={1}
-                      />
+                      <Slider value={[fontSize]} onValueChange={(val) => applyFontSize(val[0])} min={16} max={120} step={1} />
                     </div>
-
-                    {/* Color picker */}
                     <div className="space-y-2">
                       <Label className="text-xs font-medium text-muted-foreground">રંગ</Label>
                       <div className="flex flex-wrap items-center gap-2">
                         {colorSwatches.map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => applyTextColor(color)}
-                            className={`h-8 w-8 rounded-full border-2 transition-all ${
-                              textColor === color
-                                ? 'border-saffron ring-2 ring-saffron/30'
-                                : 'border-border/60 hover:scale-110'
-                            }`}
-                            style={{ backgroundColor: color }}
-                            aria-label={`રંગ ${color}`}
-                          />
+                          <button key={color} onClick={() => applyTextColor(color)} className={`h-8 w-8 rounded-full border-2 transition-all ${textColor === color? 'border-saffron ring-2 ring-saffron/30' : 'border-border/60 hover:scale-110'}`} style={{ backgroundColor: color }} aria-label={`રંગ ${color}`} />
                         ))}
                         <label className="relative h-8 w-8 cursor-pointer overflow-hidden rounded-full border-2 border-border/60 hover:scale-110 transition-all">
-                          <div
-                            className="h-full w-full"
-                            style={{
-                              background:
-                                'conic-gradient(red, orange, yellow, green, blue, indigo, violet, red)',
-                            }}
-                          />
-                          <input
-                            type="color"
-                            value={textColor}
-                            onChange={(e) => applyTextColor(e.target.value)}
-                            className="absolute inset-0 cursor-pointer opacity-0"
-                          />
+                          <div className="h-full w-full" style={{ background: 'conic-gradient(red, orange, yellow, green, blue, indigo, violet, red)' }} />
+                          <input type="color" value={textColor} onChange={(e) => applyTextColor(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" />
                         </label>
                       </div>
                     </div>
                   </div>
                 )}
               </section>
-
               <Separator />
-
-              {/* Tips */}
               <section className="rounded-lg bg-muted/50 p-4">
                 <h4 className="mb-2 text-xs font-semibold text-foreground">સૂચનાઓ</h4>
                 <ul className="space-y-1.5 text-xs text-muted-foreground">
