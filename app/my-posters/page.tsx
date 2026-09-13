@@ -190,7 +190,7 @@ export default function MyPostersPage() {
   );
 }
 
-export function savePosterToHistory(email: string, record: PosterRecord) {
+ function savePosterToHistory(email: string, record: PosterRecord) {
   try {
     const key = getStorageKey(email);
     const raw = localStorage.getItem(key);
