@@ -37,11 +37,11 @@ interface TextLayer {
 }
 
 const defaultLayers: Record<TextLayerKey, TextLayer> = {
-  headline: { text: 'તહેવારની શુભેચ્છા', fontSize: 72, top: 120, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'bold' },
-  subheadline: { text: 'સૌને શુભ દીવાળી', fontSize: 48, top: 220, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'normal' },
-  name: { text: 'તમારું નામ', fontSize: 42, top: 880, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'bold' },
-  mobile: { text: 'મોબાઈલ: ૯૮૭૫૬૪૩૨૧૦', fontSize: 36, top: 950, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'normal' },
-  from: { text: '', fontSize: 32, top: 1020, left: CANVAS_WIDTH - 30, originX: 'right', fill: '#ffffff', fontWeight: 'bold' },
+headline: { text: 'તહેવારની શુભેચ્છા', fontSize: 110, top: 150, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'bold' },
+  subheadline: { text: 'સૌને શુભ દીપાવલી', fontSize: 70, top: 300, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'bold' },
+  name: { text: 'તમારું નામ', fontSize: 65, top: 750, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'bold' },
+  mobile: { text: 'મોબાઈલ: ૯૮૦૫૪૩૨૧૦', fontSize: 45, top: 850, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'normal' },
+  from: { text: '', fontSize: 40, top: 950, left: CANVAS_WIDTH / 2, originX: 'center', fill: '#ffffff', fontWeight: 'normal' },
 };
 
 export default function EditorPage() {
